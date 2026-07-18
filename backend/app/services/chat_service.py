@@ -59,3 +59,7 @@ def update_conversation_model(db: Session, conversation_id: int, model: str):
         db.commit()
         db.refresh(db_conv)
     return db_conv
+
+def delete_messages_by_conversation(db: Session, conversation_id: int):
+    db.query(Message).filter(Message.conversation_id == conversation_id).delete()
+    db.commit()

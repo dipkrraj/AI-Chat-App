@@ -10,7 +10,7 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [googleClientId, setGoogleClientId] = useState('')
+  const [googleClientId, setGoogleClientId] = useState(import.meta.env.VITE_GOOGLE_CLIENT_ID || '')
 
   // 1. Fetch Google Client ID on mount to initialize Google One Tap
   useEffect(() => {
@@ -46,12 +46,14 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
         
         const btnElement = document.getElementById('google-signin-btn')
         if (btnElement) {
+          // Google's button library requires a numeric width in pixels (does not accept '100%')
+          const calculatedWidth = btnElement.offsetWidth || 320
           window.google.accounts.id.renderButton(
             btnElement,
             {
               theme: 'filled_blue',
               size: 'large',
-              width: '100%',
+              width: calculatedWidth,
               shape: 'rectangular',
               text: 'continue_with',
             }
@@ -266,7 +268,7 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
               <div className="flex-1 h-[1px] bg-white/[0.08]"></div>
             </div>
 
-            <div id="google-signin-btn" className="w-full overflow-hidden rounded-xl border border-white/10 transition-all duration-200 hover:border-white/20"></div>
+            <div id="google-signin-btn" className="w-full overflow-hidden flex justify-center"></div>
           </>
         )}
 

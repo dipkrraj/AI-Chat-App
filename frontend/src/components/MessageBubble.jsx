@@ -1,7 +1,7 @@
 import React from 'react'
 import { Bot, User } from 'lucide-react'
 
-function MessageBubble({ message }) {
+function MessageBubble({ message, user }) {
   const isUser = message.role === 'user'
 
   return (
@@ -28,8 +28,27 @@ function MessageBubble({ message }) {
 
       {/* User Avatar (aligned to the right) */}
       {isUser && (
-        <div className="w-8 h-8 rounded-lg bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 shadow-md mt-1">
-          <User className="w-4.5 h-4.5 text-indigo-300" />
+        <div className="w-8 h-8 rounded-lg bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 shadow-md mt-1 overflow-hidden">
+          {user?.picture ? (
+            <>
+              <img 
+                src={user.picture} 
+                alt={user.username || 'User'} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="w-full h-full bg-indigo-600/30 text-indigo-300 text-[10px] font-bold flex items-center justify-center" style={{ display: 'none' }}>
+                {(user.username || 'U').slice(0, 2).toUpperCase()}
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full bg-indigo-600/30 text-indigo-300 text-[10px] font-bold flex items-center justify-center">
+              {(user?.username || 'U').slice(0, 2).toUpperCase()}
+            </div>
+          )}
         </div>
       )}
       

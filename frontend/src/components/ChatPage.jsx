@@ -13,6 +13,14 @@ function ChatPage({ token, user, onLogout, onBack }) {
   const [selectedModel, setSelectedModel] = useState('llama-3.1-8b-instant')
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
 
+  // Lock body scroll in chat dashboard to prevent page overflow
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
   // 1. Fetch available models and conversation state on mount
   useEffect(() => {
     if (!token) return
@@ -136,7 +144,9 @@ function ChatPage({ token, user, onLogout, onBack }) {
   // 3. Mutation to send message and trigger AI response
   const chatMutation = useMutation({
     mutationFn: async (text) => {
-      if (!conversationId) return
+      if (!conversationId) {
+        throw new Error('No active conversation session')
+      }
       const response = await fetch(`${API_BASE}/api/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
@@ -157,7 +167,9 @@ function ChatPage({ token, user, onLogout, onBack }) {
       return response.json()
     },
     onSuccess: (data) => {
-      setMessages((prev) => [...prev, { role: data.sender, content: data.content }])
+      if (data) {
+        setMessages((prev) => [...prev, { role: data.sender, content: data.content }])
+      }
     },
     onError: () => {
       setMessages((prev) => [
@@ -171,7 +183,7 @@ function ChatPage({ token, user, onLogout, onBack }) {
   })
 
   const handleSendMessage = (text) => {
-    if (!text.trim()) return
+    if (!text.trim() || !conversationId) return
 
     // Immediately append the user message locally
     const userMsg = { role: 'user', content: text }
@@ -186,55 +198,81 @@ function ChatPage({ token, user, onLogout, onBack }) {
   }
 
   const handleClearChat = async () => {
-    if (window.confirm("Are you sure you want to clear this conversation?")) {
-      // To clear, we can delete the conversation or recreate it.
-      // For this project, we can clear the messages array in the UI and create a new session
-      // Or simply clear messages locally. Let's keep it simple: clear locally
-      setMessages([{ role: 'assistant', content: 'Conversation cleared! How can I help you now?' }])
+    if (!conversationId) return
+    if (window.confirm("Are you sure you want to clear this conversation? This will permanently delete all messages from the database.")) {
+      try {
+        const res = await fetch(`${API_BASE}/api/conversations/${conversationId}/messages`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (res.ok) {
+          setMessages([{ role: 'assistant', content: 'Conversation cleared! How can I help you now?' }])
+        } else {
+          alert('Failed to clear conversation from database.')
+        }
+      } catch (err) {
+        console.error('Failed to clear conversation:', err)
+        alert('Network error when clearing conversation.')
+      }
     }
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0a0f1d] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0a0f1d] to-[#05070f] text-gray-100 p-4 sm:p-6 md:p-8 justify-center items-center">
+    <div className="flex-1 flex flex-col h-full bg-[#0a0f1d] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0a0f1d] to-[#05070f] text-gray-100 lg:p-4 p-2 sm:p-6 md:p-8 justify-center items-center">
       {/* Premium Outer Card Container */}
       <div className="w-full max-w-4xl h-[85vh] md:h-[80vh] flex flex-col bg-[#111827]/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] overflow-hidden transition-all duration-300">
         
         {/* Header */}
-        <header className="px-6 py-4 flex items-center justify-between border-b border-white/15 bg-white/[0.02]">
-          <div className="flex items-center space-x-3">
-            {onBack && (
-              <button 
-                onClick={onBack}
-                className="p-2 -ml-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
-                title="Back to Home"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-            )}
-            <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg p-1 bg-gradient-to-tr from-[#111827] to-[#1f2937]">
-                <img src="/logo.png" className="w-8 h-8 object-contain" alt="Logo" />
+        <header className="px-4 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-white/15 bg-white/[0.02]">
+          {/* Left Side: Brand & Navigation */}
+          <div className="flex items-center justify-between w-full sm:w-auto">
+            <div className="flex items-center space-x-3">
+              {onBack && (
+                <button 
+                  onClick={onBack}
+                  className="p-2 -ml-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                  title="Back to Home"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+              )}
+              <div className="relative">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg p-1 bg-gradient-to-tr from-[#111827] to-[#1f2937]">
+                  <img src="/logo.png" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" alt="Logo" />
+                </div>
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border border-[#111827] rounded-full"></span>
               </div>
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#111827] rounded-full"></span>
+              <div>
+                <h1 className="text-base sm:text-lg font-semibold tracking-wide font-display bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  DverseAI
+                </h1>
+                <p className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-1">
+                  <Cpu className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-indigo-400" /> Sync Enabled
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-lg font-semibold tracking-wide font-display bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                AI Chat
-              </h1>
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <Cpu className="w-3 h-3 text-indigo-400" /> Database-Backed
-              </p>
+
+            {/* Mobile Actions: Clear Chat (Inline) */}
+            <div className="flex items-center sm:hidden">
+              <button 
+                onClick={handleClearChat}
+                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                title="Clear Conversation"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
             </div>
           </div>
           
-          {/* Model Switcher Dropdown */}
-          <div className="flex items-center space-x-4">
-            <div className="relative flex items-center">
+          {/* Right Side: Model Switcher & User Details */}
+          <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto space-x-3 sm:space-x-4 border-t border-white/[0.04] sm:border-0 pt-2 sm:pt-0">
+            {/* Model Switcher Dropdown */}
+            <div className="relative flex items-center flex-1 sm:flex-initial">
               <select 
                 value={selectedModel}
                 onChange={(e) => handleModelChange(e.target.value)}
                 disabled={updateModelMutation.isPending}
-                className="appearance-none bg-white/[0.04] border border-white/10 hover:border-white/20 rounded-xl pl-3 pr-10 py-1.5 text-xs text-gray-300 focus:outline-hidden focus:border-indigo-500/50 cursor-pointer transition-all duration-200"
+                className="w-full sm:w-auto appearance-none bg-white/[0.04] border border-white/10 hover:border-white/20 rounded-xl pl-3 pr-10 py-1.5 text-xs text-gray-300 focus:outline-hidden focus:border-indigo-500/50 cursor-pointer transition-all duration-200"
               >
                 {models.map((m) => (
                   <option 
@@ -250,46 +288,17 @@ function ChatPage({ token, user, onLogout, onBack }) {
               <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-3 pointer-events-none" />
             </div>
 
-            <button 
-              onClick={handleClearChat}
-              className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
-              title="Clear Conversation"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
+            {/* Desktop Actions: Clear Chat */}
+            <div className="hidden sm:flex items-center">
+              <button 
+                onClick={handleClearChat}
+                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                title="Clear Conversation"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
 
-            {user && (
-              <div className="flex items-center space-x-2 border-l border-white/10 pl-4 ml-1">
-                {user.picture ? (
-                  <>
-                    <img 
-                      src={user.picture} 
-                      alt={user.username} 
-                      className="w-6.5 h-6.5 rounded-full border border-white/10"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className="w-6.5 h-6.5 rounded-full bg-indigo-600/30 text-indigo-300 text-[10px] font-bold flex items-center justify-center" style={{ display: 'none' }}>
-                      {user.username.slice(0, 2).toUpperCase()}
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-6.5 h-6.5 rounded-full bg-indigo-600/30 text-indigo-300 text-[10px] font-bold flex items-center justify-center">
-                    {user.username.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
-                <span className="text-xs font-medium text-gray-300 hidden sm:inline">{user.username}</span>
-                <button 
-                  onClick={onLogout}
-                  className="text-[10px] text-gray-500 hover:text-white uppercase tracking-wider font-bold transition-colors duration-200 cursor-pointer pl-1.5"
-                  title="Logout"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
           </div>
         </header>
 
@@ -297,12 +306,15 @@ function ChatPage({ token, user, onLogout, onBack }) {
         <MessageList 
           messages={messages} 
           isPending={chatMutation.isPending} 
+          user={user}
+          onSelectSuggestion={handleSendMessage}
+          isLoading={isLoadingHistory}
         />
 
         {/* Input Box Area */}
         <InputBox 
           onSend={handleSendMessage} 
-          disabled={chatMutation.isPending || isLoadingHistory} 
+          disabled={chatMutation.isPending || isLoadingHistory || !conversationId} 
         />
         
       </div>
