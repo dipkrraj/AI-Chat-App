@@ -77,14 +77,14 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
         <div className="flex items-center space-x-2">
           <img src="/logo.png" className="w-8 h-8 object-contain" alt="Logo" />
           <span className="text-lg font-bold tracking-tight font-display bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            DVerse
+            DverseAI
           </span>
         </div>
         
         <div className="hidden sm:flex items-center space-x-8 text-sm font-medium text-gray-400">
           <a href="#features" className="hover:text-white transition-colors duration-200">Features</a>
           <a href="#integrations" className="hover:text-white transition-colors duration-200">Integrations</a>
-          <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-white flex items-center gap-1 transition-colors duration-200">
+          <a href="https://github.com/dipkrraj/AI-Chat-App/tree/main" target="_blank" rel="noreferrer" className="hover:text-white flex items-center gap-1 transition-colors duration-200">
             <Github className="w-4 h-4" /> Github
           </a>
         </div>
@@ -149,7 +149,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
         </h2>
         
         <p className="mt-6 text-base sm:text-lg text-gray-400 max-w-2xl font-light">
-          DVerse lets you chat with multiple AI models from a single interface. Choose the model that fits your task, continue previous conversations, and keep your chat history in one place.
+          DverseAI lets you chat with multiple AI models from a single interface. Choose the model that fits your task, continue previous conversations, and keep your chat history in one place.
         </p>
 
         {/* CTA Buttons */}
@@ -313,7 +313,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
       <section id="integrations" className="max-w-6xl w-full mx-auto px-6 py-12 border-t border-white/[0.04] relative z-30">
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="max-w-md">
-            <h3 className="text-2xl sm:text-3xl font-bold font-display text-white">Integrate DVerse Anywhere</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold font-display text-white">Integrate DverseAI Anywhere</h3>
             <p className="text-gray-400 text-xs sm:text-sm font-light mt-4 leading-relaxed">
               Expose routes easily through our FastAPI backend. Connect your chat platform with popular communication and development tools out-of-the-box.
             </p>
@@ -321,7 +321,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
           
           {/* Integration Bubbles */}
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-            {['Slack', 'Discord', 'Vite', 'FastAPI', 'Github', 'SQLite', 'Groq', 'Python'].map((name, i) => (
+            {['Slack', 'Discord', 'Vite', 'FastAPI', 'Github', 'PostgreSQL', 'Groq', 'Python'].map((name, i) => (
               <div 
                 key={i}
                 className="px-4 py-3 bg-white/[0.02] border border-white/[0.05] rounded-xl flex items-center justify-center text-xs font-semibold text-gray-300 shadow-md hover:border-white/10 hover:bg-white/[0.04] hover:text-white transition-all duration-200 cursor-default"
@@ -358,7 +358,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
       {/* Footer */}
       <footer className="mt-auto border-t border-white/[0.04] bg-[#05080e] py-8 text-center text-xs text-gray-500 relative z-30">
         <div className="max-w-7xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>&copy; {new Date().getFullYear()} DVerse Platform. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} DverseAI Platform. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#features" className="hover:text-gray-300">Features</a>
             <a href="#integrations" className="hover:text-gray-300">Integrations</a>

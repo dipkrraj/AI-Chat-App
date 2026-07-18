@@ -1,6 +1,6 @@
-# DVerse 🚀
+# DverseAI 🚀
 
-**DVerse** is a sleek, premium, developer-portfolio-grade AI chat application designed to connect users with multiple LLM providers (including GPT, Claude, Gemini, and Llama) through a unified interface. Built using a **FastAPI (Python)** backend and a **React/Vite (JavaScript)** frontend, the project showcases high-performance cloud database connection pooling, auto-failover LLM routing, containerized orchestration, and polished glassmorphic styling.
+**DverseAI** is a sleek, premium, developer-portfolio-grade AI chat application designed to connect users with multiple LLM providers (including GPT, Claude, Gemini, and Llama) through a unified interface. Built using a **FastAPI (Python)** backend and a **React/Vite (JavaScript)** frontend, the project showcases high-performance cloud database connection pooling, auto-failover LLM routing, containerized orchestration, and polished glassmorphic styling.
 
 🔗 **GitHub Repository**: [dipkrraj/AI-Chat-App](https://github.com/dipkrraj/AI-Chat-App/tree/main)
 

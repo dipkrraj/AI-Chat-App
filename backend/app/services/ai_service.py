@@ -80,7 +80,7 @@ def _execute_llm_request(model_details: dict, history: List[Dict[str, str]]) -> 
     
     if model_details["provider"] == "openrouter":
         headers["HTTP-Referer"] = "http://localhost:5173"
-        headers["X-Title"] = "DVerse Chat"
+        headers["X-Title"] = "DverseAI Chat"
 
     payload = {
         "model": model_details["model_id"],

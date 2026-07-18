@@ -68,7 +68,7 @@ function MessageList({ messages, isPending, user, onSelectSuggestion, isLoading 
 
         <div>
           <h2 className="text-xl font-bold font-display bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Welcome to DVerse Chat
+            Welcome to DverseAI Chat
           </h2>
           <p className="text-xs text-gray-400 font-light mt-1.5 max-w-sm leading-relaxed">
             Your multi-model AI dashboard. Select a model above and select a starter prompt below to begin chatting.
