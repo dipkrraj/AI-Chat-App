@@ -243,9 +243,9 @@ function ChatPage({ token, user, onLogout, onBack }) {
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border border-[#111827] rounded-full"></span>
               </div>
               <div>
-                {/* <h1 className="text-base sm:text-lg font-semibold tracking-wide font-display bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  AI Chat
-                </h1> */}
+                <h1 className="text-base sm:text-lg font-semibold tracking-wide font-display bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  DVerse
+                </h1>
                 <p className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-1">
                   <Cpu className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-indigo-400" /> Sync Enabled
                 </p>
