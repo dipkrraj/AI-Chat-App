@@ -1,0 +1,35 @@
+# System files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local Environment Secrets (CRITICAL)
+.env
+backend/.env
+frontend/.env
+backend/.env.development
+backend/.env.production
+
+# Virtual Environments
+.venv/
+venv/
+env/
+backend/.venv/
+node_modules/
+node-env/
+
+# Local Database Files
+*.db
+backend/sql_app.db
+
+# Build Artifacts
+dist/
+build/
+*.pyc
+__pycache__/
+backend/app/__pycache__/
+backend/app/models/__pycache__/
+backend/app/schemas/__pycache__/
+backend/app/services/__pycache__/
+backend/app/routers/__pycache__/
+backend/app/database/__pycache__/
