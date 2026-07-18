@@ -14,35 +14,35 @@ SUPPORTED_MODELS = {
         "endpoint": "https://api.groq.com/openai/v1/chat/completions",
         "env_key": "GROQ_API_KEY"
     },
-    "gemma2-9b-it": {
-        "id": "gemma2-9b-it",
-        "name": "Gemma 2 9B (Groq)",
+    "llama-3.3-70b-versatile": {
+        "id": "llama-3.3-70b-versatile",
+        "name": "Llama 3.3 70B (Groq)",
         "provider": "groq",
-        "model_id": "gemma2-9b-it",
+        "model_id": "llama-3.3-70b-versatile",
         "endpoint": "https://api.groq.com/openai/v1/chat/completions",
         "env_key": "GROQ_API_KEY"
     },
-    "meta-llama/llama-3-8b-instruct:free": {
-        "id": "meta-llama/llama-3-8b-instruct:free",
-        "name": "Llama 3 8B (OpenRouter Free)",
+    "meta-llama/llama-3.3-70b-instruct:free": {
+        "id": "meta-llama/llama-3.3-70b-instruct:free",
+        "name": "Llama 3.3 70B (OpenRouter Free)",
         "provider": "openrouter",
-        "model_id": "meta-llama/llama-3-8b-instruct:free",
+        "model_id": "meta-llama/llama-3.3-70b-instruct:free",
         "endpoint": "https://openrouter.ai/api/v1/chat/completions",
         "env_key": "OPEN_ROUTER_API_KEY"
     },
-    "google/gemma-2-9b-it:free": {
-        "id": "google/gemma-2-9b-it:free",
-        "name": "Gemma 2 9B (OpenRouter Free)",
+    "meta-llama/llama-3.2-3b-instruct:free": {
+        "id": "meta-llama/llama-3.2-3b-instruct:free",
+        "name": "Llama 3.2 3B (OpenRouter Free)",
         "provider": "openrouter",
-        "model_id": "google/gemma-2-9b-it:free",
+        "model_id": "meta-llama/llama-3.2-3b-instruct:free",
         "endpoint": "https://openrouter.ai/api/v1/chat/completions",
         "env_key": "OPEN_ROUTER_API_KEY"
     },
-    "mistralai/mistral-7b-instruct:free": {
-        "id": "mistralai/mistral-7b-instruct:free",
-        "name": "Mistral 7B (OpenRouter Free)",
+    "qwen/qwen3-coder:free": {
+        "id": "qwen/qwen3-coder:free",
+        "name": "Qwen 3 Coder (OpenRouter Free)",
         "provider": "openrouter",
-        "model_id": "mistralai/mistral-7b-instruct:free",
+        "model_id": "qwen/qwen3-coder:free",
         "endpoint": "https://openrouter.ai/api/v1/chat/completions",
         "env_key": "OPEN_ROUTER_API_KEY"
     }
@@ -65,36 +65,23 @@ def get_available_models() -> List[Dict]:
         })
     return models_list
 
-def generate_bot_response(history: List[Dict[str, str]], model_id: str) -> str:
-    """
-    Generate response using selected model and full history.
-    history is a list of dicts: [{"role": "user"|"assistant", "content": "..."}]
-    """
-    # Fallback to default model if none specified or invalid
-    if not model_id or model_id not in SUPPORTED_MODELS:
-        model_id = "llama-3.1-8b-instant"
-
-    model_details = SUPPORTED_MODELS.get(model_id)
-
-    # Fetch API Key
+def _execute_llm_request(model_details: dict, history: List[Dict[str, str]]) -> tuple:
+    """Helper to execute the requests and return (response_text, error_message)"""
     api_key = os.getenv(model_details["env_key"])
     if not api_key or not api_key.strip():
-        return (f"⚠️ **Configuration Missing**\n\n"
-                f"The key `{model_details['env_key']}` is not configured in your backend `.env` file.\n"
-                f"Please add it to enable the **{model_details['name']}** model.")
+        return None, (f"⚠️ **Configuration Missing**\n\n"
+                      f"The key `{model_details['env_key']}` is not configured in your backend `.env` file.\n"
+                      f"Please add it to enable the **{model_details['name']}** model.")
 
-    # Prepare HTTP Request
     headers = {
         "Authorization": f"Bearer {api_key.strip()}",
         "Content-Type": "application/json"
     }
     
-    # Custom headers for OpenRouter
     if model_details["provider"] == "openrouter":
         headers["HTTP-Referer"] = "http://localhost:5173"
-        headers["X-Title"] = "AI Chat App"
+        headers["X-Title"] = "DVerse Chat"
 
-    # Prepare body
     payload = {
         "model": model_details["model_id"],
         "messages": history,
@@ -111,7 +98,7 @@ def generate_bot_response(history: List[Dict[str, str]], model_id: str) -> str:
         
         if response.status_code == 200:
             result = response.json()
-            return result["choices"][0]["message"]["content"]
+            return result["choices"][0]["message"]["content"], None
         else:
             error_detail = response.text
             try:
@@ -120,13 +107,40 @@ def generate_bot_response(history: List[Dict[str, str]], model_id: str) -> str:
                     error_detail = error_json["error"].get("message", response.text)
             except Exception:
                 pass
-            return (f"❌ **API Error ({response.status_code})**\n\n"
-                    f"Failed to query {model_details['provider'].upper()}: {error_detail}")
-                    
+            return None, (f"❌ **API Error ({response.status_code})**\n\n"
+                          f"Failed to query {model_details['provider'].upper()}: {error_detail}")
+                          
     except requests.exceptions.Timeout:
-        return "⏳ **Request Timeout**\n\nConnection to the AI provider timed out. Please try again."
+        return None, "⏳ **Request Timeout**\n\nConnection to the AI provider timed out. Please try again."
     except Exception as e:
-        return f"💥 **Error**\n\nAn unexpected connection error occurred: {str(e)}"
+        return None, f"💥 **Error**\n\nAn unexpected connection error occurred: {str(e)}"
+
+def generate_bot_response(history: List[Dict[str, str]], model_id: str) -> str:
+    """
+    Generate response using selected model and full history.
+    history is a list of dicts: [{"role": "user"|"assistant", "content": "..."}]
+    """
+    # Fallback to default model if none specified or invalid
+    if not model_id or model_id not in SUPPORTED_MODELS:
+        model_id = "llama-3.1-8b-instant"
+
+    model_details = SUPPORTED_MODELS.get(model_id)
+
+    # 1. Attempt standard execution of the selected model
+    res, err = _execute_llm_request(model_details, history)
+    if res:
+        return res
+
+    # 2. Trigger automatic failover to the stable Groq Llama 3.1 model if the selection failed
+    if model_id != "llama-3.1-8b-instant":
+        stable_details = SUPPORTED_MODELS["llama-3.1-8b-instant"]
+        fallback_res, fallback_err = _execute_llm_request(stable_details, history)
+        if fallback_res:
+            return (fallback_res + 
+                    f"\n\n---\n*💡 Note: Switched to Llama 3.1 8B (Groq) dynamically due to rate limits/errors on the selected model ({model_details['name']}).*")
+
+    # 3. If fallback fails as well, return original query error details
+    return err
 
 def summarize_messages(history: List[Dict[str, str]], model_id: str) -> str:
     """Generate a brief 1-2 sentence summary of the earlier chat transcript."""
