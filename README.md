@@ -79,6 +79,28 @@ To run the entire application using containers in one command, ensure you have [
     ```
     *The site will start running on **`http://localhost:5173`**.*
 
+## 🗄️ Database Configuration
+
+By default, the application supports both **SQLite** (for quick local development) and **PostgreSQL** (for production deployments like Neon or Supabase).
+
+### Option A: Local SQLite (Default)
+To run with a local SQLite database, leave the `DATABASE_URL` key empty or specify:
+```env
+DATABASE_URL=sqlite:///./sql_app.db
+```
+The database file will be created automatically in your `backend/` directory on server boot.
+
+### Option B: Cloud PostgreSQL (e.g. Neon)
+To connect to a managed cloud database, copy your connection string from your Neon dashboard and assign it to the environment:
+```env
+DATABASE_URL=postgresql://neondb_owner:your_password@ep-cold-mode.aws.neon.tech/neondb?sslmode=require
+```
+
+> [!NOTE]
+> **Serverless Connection Handling**:
+> * Our database connector automatically parses connection strings beginning with `postgres://` (which Neon/Supabase export by default) and updates them to `postgresql://` to prevent driver mismatch crashes.
+> * It integrates connection recycling (`pool_recycle=300`) and active validation (`pool_pre_ping=True`) to handle Neon's serverless sleep cycle without throwing SSL/socket timeouts in your application.
+
 ---
 
 ## 🔑 Environment Settings
