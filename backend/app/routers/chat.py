@@ -98,6 +98,16 @@ def send_message(msg_in: msg_schemas.MessageCreate, conversation_id: int, curren
     return bot_msg
 
 
+@router.delete("/api/conversations/{conversation_id}/messages")
+def clear_conversation_messages(conversation_id: int, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
+    """Delete all messages associated with a conversation session to clear database history."""
+    conversation = chat_service.get_conversation(db, conversation_id)
+    if not conversation or conversation.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Conversation session not found")
+        
+    chat_service.delete_messages_by_conversation(db, conversation_id)
+    return {"status": "success", "message": "Conversation history cleared successfully"}
+
 # --- Backwards Compatibility Endpoint ---
 # Allows testing the single-page chat without using the database layer
 

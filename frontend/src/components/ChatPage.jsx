@@ -144,7 +144,9 @@ function ChatPage({ token, user, onLogout, onBack }) {
   // 3. Mutation to send message and trigger AI response
   const chatMutation = useMutation({
     mutationFn: async (text) => {
-      if (!conversationId) return
+      if (!conversationId) {
+        throw new Error('No active conversation session')
+      }
       const response = await fetch(`${API_BASE}/api/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
@@ -165,7 +167,9 @@ function ChatPage({ token, user, onLogout, onBack }) {
       return response.json()
     },
     onSuccess: (data) => {
-      setMessages((prev) => [...prev, { role: data.sender, content: data.content }])
+      if (data) {
+        setMessages((prev) => [...prev, { role: data.sender, content: data.content }])
+      }
     },
     onError: () => {
       setMessages((prev) => [
@@ -179,7 +183,7 @@ function ChatPage({ token, user, onLogout, onBack }) {
   })
 
   const handleSendMessage = (text) => {
-    if (!text.trim()) return
+    if (!text.trim() || !conversationId) return
 
     // Immediately append the user message locally
     const userMsg = { role: 'user', content: text }
@@ -194,16 +198,27 @@ function ChatPage({ token, user, onLogout, onBack }) {
   }
 
   const handleClearChat = async () => {
-    if (window.confirm("Are you sure you want to clear this conversation?")) {
-      // To clear, we can delete the conversation or recreate it.
-      // For this project, we can clear the messages array in the UI and create a new session
-      // Or simply clear messages locally. Let's keep it simple: clear locally
-      setMessages([{ role: 'assistant', content: 'Conversation cleared! How can I help you now?' }])
+    if (!conversationId) return
+    if (window.confirm("Are you sure you want to clear this conversation? This will permanently delete all messages from the database.")) {
+      try {
+        const res = await fetch(`${API_BASE}/api/conversations/${conversationId}/messages`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (res.ok) {
+          setMessages([{ role: 'assistant', content: 'Conversation cleared! How can I help you now?' }])
+        } else {
+          alert('Failed to clear conversation from database.')
+        }
+      } catch (err) {
+        console.error('Failed to clear conversation:', err)
+        alert('Network error when clearing conversation.')
+      }
     }
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0a0f1d] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0a0f1d] to-[#05070f] text-gray-100 p-4 sm:p-6 md:p-8 justify-center items-center">
+    <div className="flex-1 flex flex-col h-full bg-[#0a0f1d] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0a0f1d] to-[#05070f] text-gray-100 lg:p-4 p-2 sm:p-6 md:p-8 justify-center items-center">
       {/* Premium Outer Card Container */}
       <div className="w-full max-w-4xl h-[85vh] md:h-[80vh] flex flex-col bg-[#111827]/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] overflow-hidden transition-all duration-300">
         
@@ -292,12 +307,13 @@ function ChatPage({ token, user, onLogout, onBack }) {
           messages={messages} 
           isPending={chatMutation.isPending} 
           user={user}
+          onSelectSuggestion={handleSendMessage}
         />
 
         {/* Input Box Area */}
         <InputBox 
           onSend={handleSendMessage} 
-          disabled={chatMutation.isPending || isLoadingHistory} 
+          disabled={chatMutation.isPending || isLoadingHistory || !conversationId} 
         />
         
       </div>
