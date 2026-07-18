@@ -7,23 +7,13 @@ import {
 
 const DEMO_STEPS = [
   {
-    prompt: "Write a React hook to detect clicks outside a container.",
-    response: `import { useEffect } from 'react';
+    prompt: "Which model writes better React code?",
+    response: `To compare, let's look at writing a custom hook:
 
-export function useClickOutside(ref, handler) {
-  useEffect(() => {
-    const listener = (event) => {
-      if (!ref.current || ref.current.contains(event.target)) return;
-      handler(event);
-    };
-    document.addEventListener('mousedown', listener);
-    return () => document.removeEventListener('mousedown', listener);
-  }, [ref, handler]);
-}`
-  },
-  {
-    prompt: "What is Dp AI?",
-    response: "Dp AI is a high-performance, minimal chatbot platform. It integrates Groq Llama 3.1 & OpenRouter models with a SQLite relational database backend for conversation history memory and context summarization."
+1. GPT-4: Focuses on clean, standard patterns, providing optimal hooks with concise comments.
+2. Claude: Excels at detailed explanations, edge-case coverage, and security-first code structuring.
+
+Both are powerful; choose GPT-4 for speed and Claude for comprehensive architecture.`
   }
 ]
 
@@ -79,7 +69,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
     <div className="min-h-screen bg-[#070a13] text-gray-100 flex flex-col selection:bg-violet-600/30">
       
       {/* Glow Backdrops */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute top-0 left-1/4 w-auto h-[500px] bg-indigo-900/10 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute top-[20vh] right-1/4 w-[400px] h-[400px] bg-violet-900/10 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Navbar */}
@@ -87,7 +77,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
         <div className="flex items-center space-x-2">
           <img src="/logo.png" className="w-8 h-8 object-contain" alt="Logo" />
           <span className="text-lg font-bold tracking-tight font-display bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            AI Platform
+            DVerse
           </span>
         </div>
         
@@ -144,19 +134,22 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
       {/* Hero Section */}
       <section className="max-w-5xl w-full mx-auto px-6 pt-16 md:pt-24 flex flex-col items-center text-center relative z-10">
         
-        {/* Banner Tag */}
-        <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-violet-950/30 border border-violet-500/20 text-xs text-violet-300 font-semibold mb-6 animate-pulse-slow shadow-lg shadow-violet-500/5">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Multi-Model Llama 3.1 & SQLite Memory Enabled</span>
+        {/* Multi-Model Badge */}
+        <div className="inline-flex items-center space-x-2 px-3 py-1 bg-violet-600/10 border border-violet-500/20 rounded-full text-violet-400 text-[11px] font-semibold tracking-wide animate-pulse-slow">
+          <Cpu className="w-3.5 h-3.5" />
+          <span>Supports GPT, Claude, Gemini, Llama & More</span>
         </div>
+
+        {/* Subtitle */}
+        <span className="text-xs uppercase tracking-widest text-indigo-400 font-bold mt-6 mb-2">Multi-Model AI Chat</span>
 
         {/* Brand Main Title */}
         <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-display bg-gradient-to-b from-white via-gray-200 to-gray-500 bg-clip-text text-transparent max-w-4xl leading-tight sm:leading-none">
-          Conversational Intelligence, Simplified.
+          One Chat.<br />Multiple AI Models.
         </h2>
         
         <p className="mt-6 text-base sm:text-lg text-gray-400 max-w-2xl font-light">
-          Experience lightning-fast responses from Llama 3.1. Build, iterate, and chat with a database-backed memory model that never forgets context.
+          DVerse lets you chat with multiple AI models from a single interface. Choose the model that fits your task, continue previous conversations, and keep your chat history in one place.
         </p>
 
         {/* CTA Buttons */}
@@ -165,14 +158,14 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
             onClick={onNavigate}
             className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm flex items-center justify-center space-x-2 transition-all duration-200 shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98]"
           >
-            <span>Try Now</span>
+            <span>Start Chatting</span>
             <ArrowRight className="w-4 h-4" />
           </button>
           <a 
             href="#features"
             className="px-6 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-gray-200 font-semibold text-sm flex items-center justify-center transition-all duration-200"
           >
-            Explore Features
+            Learn More
           </a>
         </div>
       </section>
@@ -320,7 +313,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
       <section id="integrations" className="max-w-6xl w-full mx-auto px-6 py-12 border-t border-white/[0.04] relative z-30">
         <div className="flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="max-w-md">
-            <h3 className="text-2xl sm:text-3xl font-bold font-display text-white">Integrate Dp AI Anywhere</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold font-display text-white">Integrate DVerse Anywhere</h3>
             <p className="text-gray-400 text-xs sm:text-sm font-light mt-4 leading-relaxed">
               Expose routes easily through our FastAPI backend. Connect your chat platform with popular communication and development tools out-of-the-box.
             </p>
@@ -356,7 +349,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
             onClick={onNavigate}
             className="mt-8 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm flex items-center justify-center space-x-2 transition-all duration-200 shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98]"
           >
-            <span>Try Dp AI For Free</span>
+            <span>Start Chatting Free</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -365,7 +358,7 @@ function LandingPage({ user, onLogout, onOpenAuth, onNavigate }) {
       {/* Footer */}
       <footer className="mt-auto border-t border-white/[0.04] bg-[#05080e] py-8 text-center text-xs text-gray-500 relative z-30">
         <div className="max-w-7xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>&copy; {new Date().getFullYear()} Dp AI Platform. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} DVerse Platform. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#features" className="hover:text-gray-300">Features</a>
             <a href="#integrations" className="hover:text-gray-300">Integrations</a>

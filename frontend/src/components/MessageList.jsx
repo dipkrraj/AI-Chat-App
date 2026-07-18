@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import MessageBubble from './MessageBubble'
 
-function MessageList({ messages, isPending }) {
+function MessageList({ messages, isPending, user }) {
   const bottomRef = useRef(null)
 
   // Scroll to bottom on updates
@@ -19,6 +19,7 @@ function MessageList({ messages, isPending }) {
         <MessageBubble 
           key={index} 
           message={message} 
+          user={user}
         />
       ))}
       
