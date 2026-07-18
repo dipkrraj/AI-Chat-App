@@ -13,6 +13,14 @@ function ChatPage({ token, user, onLogout, onBack }) {
   const [selectedModel, setSelectedModel] = useState('llama-3.1-8b-instant')
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
 
+  // Lock body scroll in chat dashboard to prevent page overflow
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
   // 1. Fetch available models and conversation state on mount
   useEffect(() => {
     if (!token) return
