@@ -36,6 +36,7 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
   useEffect(() => {
     if (!googleClientId || !isOpen) return
 
+    let attempts = 0
     const initGoogle = () => {
       if (window.google) {
         window.google.accounts.id.initialize({
@@ -43,16 +44,22 @@ function AuthModal({ isOpen, onClose, onSuccess }) {
           callback: handleGoogleCredentialResponse,
         })
         
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-signin-btn'),
-          {
-            theme: 'filled_blue',
-            size: 'large',
-            width: '100%',
-            shape: 'rectangular',
-            text: 'continue_with',
-          }
-        )
+        const btnElement = document.getElementById('google-signin-btn')
+        if (btnElement) {
+          window.google.accounts.id.renderButton(
+            btnElement,
+            {
+              theme: 'filled_blue',
+              size: 'large',
+              width: '100%',
+              shape: 'rectangular',
+              text: 'continue_with',
+            }
+          )
+        }
+      } else if (attempts < 15) {
+        attempts++
+        setTimeout(initGoogle, 200) // retry in 200ms if script not loaded yet
       }
     }
 
