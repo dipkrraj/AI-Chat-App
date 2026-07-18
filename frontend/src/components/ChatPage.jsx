@@ -308,6 +308,7 @@ function ChatPage({ token, user, onLogout, onBack }) {
           isPending={chatMutation.isPending} 
           user={user}
           onSelectSuggestion={handleSendMessage}
+          isLoading={isLoadingHistory}
         />
 
         {/* Input Box Area */}

@@ -9,7 +9,7 @@ const SUGGESTIONS = [
   { title: "SaaS Launch Email", prompt: "Write a short, engaging marketing email for a SaaS product launch." }
 ]
 
-function MessageList({ messages, isPending, user, onSelectSuggestion }) {
+function MessageList({ messages, isPending, user, onSelectSuggestion, isLoading }) {
   const bottomRef = useRef(null)
 
   // Scroll to bottom on updates
@@ -20,6 +20,40 @@ function MessageList({ messages, isPending, user, onSelectSuggestion }) {
   useEffect(() => {
     scrollToBottom()
   }, [messages, isPending])
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col justify-start px-6 py-6 space-y-6 overflow-hidden select-none">
+        {/* Skeleton Bubble 1 (Left/Assistant) */}
+        <div className="flex justify-start items-start space-x-2 animate-pulse">
+          <div className="w-8 h-8 rounded-lg bg-white/5 flex-shrink-0"></div>
+          <div className="space-y-2 max-w-[60%]">
+            <div className="h-4 bg-white/5 rounded-md w-24"></div>
+            <div className="h-3 bg-white/5 rounded-md w-48"></div>
+          </div>
+        </div>
+
+        {/* Skeleton Bubble 2 (Right/User) */}
+        <div className="flex justify-end items-start space-x-2 animate-pulse">
+          <div className="space-y-2 max-w-[50%] flex flex-col items-end">
+            <div className="h-4 bg-white/5 rounded-md w-32"></div>
+            <div className="h-3 bg-white/5 rounded-md w-20"></div>
+          </div>
+          <div className="w-8 h-8 rounded-lg bg-white/5 flex-shrink-0"></div>
+        </div>
+
+        {/* Skeleton Bubble 3 (Left/Assistant) */}
+        <div className="flex justify-start items-start space-x-2 animate-pulse">
+          <div className="w-8 h-8 rounded-lg bg-white/5 flex-shrink-0"></div>
+          <div className="space-y-2 max-w-[70%]">
+            <div className="h-4 bg-white/5 rounded-md w-40"></div>
+            <div className="h-3 bg-white/5 rounded-md w-64"></div>
+            <div className="h-3 bg-white/5 rounded-md w-52"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (messages.length === 0) {
     return (
